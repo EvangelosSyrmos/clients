@@ -146,6 +146,7 @@ class MqttUser(User):
 
         if self.port == 8883:
             self.client.tls_set(ca_certs=self._cafile)
+            self.client.tls_insecure_set(True)
             self.client.username_pw_set(
                 self.username,
                 self.password
