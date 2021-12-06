@@ -33,7 +33,7 @@ with open("700_bytes.json") as f:
     PAYLOAD_700_BYTES = json.dumps(json.load(f))
 
 
-# Internall Variables
+# Internall Variables for clients
 SUBACK_FAILURE = 0x80
 CLIENT_COUNTER = 0
 
@@ -209,7 +209,7 @@ class MqttClient(mqtt.Client):
                 name=EventType.PUBLISH.value,
                 response_time=0,
                 response_length=0,
-                exception=AssertionError(f"Could not find message data for mid "{mid}" in _on_publish_cb."),
+                exception=AssertionError(f"Could not find message data for mid {mid} in _on_publish_cb."),
                 context={
                     "client_id": self.client_id,
                     "mid": mid,
@@ -264,7 +264,7 @@ class MqttClient(mqtt.Client):
                 name=EventType.SUBSCRIBE.value,
                 response_time=0,
                 response_length=0,
-                exception=AssertionError(f"Could not find message data for mid "{mid}" in _on_subscribe_cb."),
+                exception=AssertionError(f"Could not find message data for mid {mid} in _on_subscribe_cb."),
                 context={
                     "client_id": self.client_id,
                     "mid": mid,
