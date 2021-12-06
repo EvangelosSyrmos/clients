@@ -22,14 +22,14 @@ if typing.TYPE_CHECKING:
     from paho.mqtt.subscribeoptions import SubscribeOptions
 
 
-with open('settings.json') as f:
+with open("settings.json") as f:
         SETTINGS = json.load(f)
 
-with open('200_bytes.json') as f:
+with open("200_bytes.json") as f:
     PAYLOAD_200_BYTES = json.dumps(json.load(f))
-with open('500_bytes.json') as f:
+with open("500_bytes.json") as f:
     PAYLOAD_500_BYTES = json.dumps(json.load(f))
-with open('700_bytes.json') as f:
+with open("700_bytes.json") as f:
     PAYLOAD_700_BYTES = json.dumps(json.load(f))
 
 
@@ -38,7 +38,7 @@ SUBACK_FAILURE = 0x80
 CLIENT_COUNTER = 0
 
 class OnStart_Connect_Sub_Task_PuB_At_Time_Intervals_Clients(TaskSet):
-    '''
+    """
     This class creates clients that:
     --------------------------------
     ==> On connect:
@@ -46,16 +46,16 @@ class OnStart_Connect_Sub_Task_PuB_At_Time_Intervals_Clients(TaskSet):
         => Subscribes to all topics once
     ==> During tasks:
         => Publish to a random topic at a high frequency
-    '''
+    """
     initial_publish = True
-    publish_topics = SETTINGS["TOPICS"]['TEST_TOPICS']
-    subscribe_topics = SETTINGS['TOPICS']['TEST_TOPICS']
+    publish_topics = SETTINGS["TOPICS"]["TEST_TOPICS"]
+    subscribe_topics = SETTINGS["TOPICS"]["TEST_TOPICS"]
     payload_200_bytes = PAYLOAD_200_BYTES
     payload_500_bytes = PAYLOAD_500_BYTES
     payload_700_bytes = PAYLOAD_700_BYTES
 
     # wait_time = constant_throughput(
-    #     SETTINGS['LOCUST_VARIABLES']['REQUESTS_PER_SEC_HIGH_FREQ'])
+    #     SETTINGS["LOCUST_VARIABLES"]["REQUESTS_PER_SEC_HIGH_FREQ"])
 
     @events.test_start.add_listener
     def on_test_start(environment, **kwargs):
@@ -72,19 +72,19 @@ class OnStart_Connect_Sub_Task_PuB_At_Time_Intervals_Clients(TaskSet):
                 self.client.publish(random.choice(self.publish_topics), payload = self.payload_200_bytes)
                 # self.client.publish(random.choice(self.publish_topics), payload = "200")
                 self.last_published_timestamp_of_two_seconds = datetime.now()
-                # print(f"{self.client.client_id} => P: {SETTINGS['PUBLISH_INTERVALS']['2']} ==> {datetime.now()}")
+                # print(f"{self.client.client_id} => P: {SETTINGS["PUBLISH_INTERVALS"]["2"]} ==> {datetime.now()}")
             if int((datetime.now() - self.last_published_timestamp_of_ten_seconds).seconds) >= SETTINGS["PUBLISH_INTERVALS"]["10"]:
                 self.client.publish(random.choice(self.publish_topics), payload = self.payload_500_bytes)
                 # self.client.publish(random.choice(self.publish_topics), payload = "500")
                 self.last_published_timestamp_of_ten_seconds = datetime.now()
-                # print(f"{self.client.client_id} => P: {SETTINGS['PUBLISH_INTERVALS']['10']} ==> {datetime.now()}")
+                # print(f"{self.client.client_id} => P: {SETTINGS["PUBLISH_INTERVALS"]["10"]} ==> {datetime.now()}")
             if int((datetime.now() - self.last_published_timestamp_of_sixty_seconds).seconds) >= SETTINGS["PUBLISH_INTERVALS"]["60"]:
                 self.client.publish(random.choice(self.publish_topics), payload = self.payload_700_bytes)
                 # self.client.publish(random.choice(self.publish_topics), payload = "700")
                 self.last_published_timestamp_of_sixty_seconds = datetime.now()
-                # print(f"{self.client.client_id} => P: {SETTINGS['PUBLISH_INTERVALS']['60']} ==> {datetime.now()}")
+                # print(f"{self.client.client_id} => P: {SETTINGS["PUBLISH_INTERVALS"]["60"]} ==> {datetime.now()}")
         else:
-            self.client.publish(random.choice(self.publish_topics), payload= 'start')
+            self.client.publish(random.choice(self.publish_topics), payload= "start")
             self.last_published_timestamp_of_two_seconds = self.last_published_timestamp_of_ten_seconds = self.last_published_timestamp_of_sixty_seconds = datetime.now()
             self.initial_publish = False
 
@@ -97,14 +97,14 @@ def get_payload_size_in_utf_8(value):
     return len(value.encode("utf-8"))
 
 class EventType(Enum):
-    CONNECT = 'connect'
-    DISCONNECT ='disconnect'
-    PUBLISH = 'publish'
-    SUBSCRIBE = 'subscribe'
+    CONNECT = "connect"
+    DISCONNECT ="disconnect"
+    PUBLISH = "publish"
+    SUBSCRIBE = "subscribe"
 
 
 class RequestType(Enum):
-    MQTT = 'MQTT'
+    MQTT = "MQTT"
 
 
 def _generate_mqtt_event_name(id, event_type: str, qos: int, topic: str):
@@ -126,12 +126,12 @@ class SubscribeContext(typing.NamedTuple):
 class MqttUser(User):
     tasks = {OnStart_Connect_Sub_Task_PuB_At_Time_Intervals_Clients}
     
-    username = SETTINGS['CREDENTIALS']['USERNAME']
-    password = SETTINGS['CREDENTIALS']['PASSWORD']
-    _cafile = SETTINGS['CERTIFICATES']['CAFILE']
-    transport = SETTINGS['TRANSPORT']
-    broker = SETTINGS['BROKER_INFO']['BROKER']
-    port = SETTINGS['BROKER_INFO']['PORT']
+    username = SETTINGS["CREDENTIALS"]["USERNAME"]
+    password = SETTINGS["CREDENTIALS"]["PASSWORD"]
+    _cafile = SETTINGS["CERTIFICATES"]["CAFILE"]
+    transport = SETTINGS["TRANSPORT"]
+    broker = SETTINGS["BROKER_INFO"]["BROKER"]
+    port = SETTINGS["BROKER_INFO"]["PORT"]
 
     def __init__(self, environment: Environment):
         super().__init__(environment)
@@ -192,7 +192,7 @@ class MqttClient(mqtt.Client):
     #     If a message is retrieved from the subscribed topic, this function is 
     #     executed and logs the corresponding message (payload).
     #     """
-        # print(f'Recieved from {client.client_id} || {round(time.time(),1)} || {message.topic} ({str(message.qos)}) => {str(message.payload.decode())}')
+        # print(f"Recieved from {client.client_id} || {round(time.time(),1)} || {message.topic} ({str(message.qos)}) => {str(message.payload.decode())}")
 
     def _on_publish_cb(
         self,
@@ -209,7 +209,7 @@ class MqttClient(mqtt.Client):
                 name=EventType.PUBLISH.value,
                 response_time=0,
                 response_length=0,
-                exception=AssertionError(f"Could not find message data for mid '{mid}' in _on_publish_cb."),
+                exception=AssertionError(f"Could not find message data for mid "{mid}" in _on_publish_cb."),
                 context={
                     "client_id": self.client_id,
                     "mid": mid,
@@ -264,7 +264,7 @@ class MqttClient(mqtt.Client):
                 name=EventType.SUBSCRIBE.value,
                 response_time=0,
                 response_length=0,
-                exception=AssertionError(f"Could not find message data for mid '{mid}' in _on_subscribe_cb."),
+                exception=AssertionError(f"Could not find message data for mid "{mid}" in _on_subscribe_cb."),
                 context={
                     "client_id": self.client_id,
                     "mid": mid,
